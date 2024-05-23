@@ -9,22 +9,28 @@ import axios from 'axios'
 export default function Autentication() {
     const[email, setEmail] = useState<string>('')
     const[senha, setSenha] = useState<string>('')
+    const [responseCode, setResponseCode] = useState<number | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
-    function aoSubmeter(evento: React.FormEvent<HTMLFormElement>) {
+    async function aoSubmeter(evento: React.FormEvent<HTMLFormElement>) {
       evento.preventDefault()
       const usuario = {
         login: email,
         password: senha
       };
       console.log(usuario)
-      axios.post('https://apifoodlivre.inffel.com/auth/login', usuario)
-            .then(reposta => {
-              sessionStorage.setItem('token', reposta.data.access_token)
+      await axios.post('https://apifoodlivre.inffel.com/auth/login', usuario)
+            .then(resposta => {
+              sessionStorage.setItem('token', resposta.data.access_token)
+              setResponseCode(resposta.status)
+              console.log(responseCode)
               setEmail('')
               setSenha('')
             })
-            .catch(() => {
+            .catch((err) => {
               alert('Aconteceu um erro inesperado ao afetuar o seu login!')
+              setError(err.response ? err.response.status : 500);
+              console.log(error)
           })
     }
       
